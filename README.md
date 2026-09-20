@@ -23,8 +23,8 @@ This repo builds a small API with both problems on purpose, then fixes them one 
 ## What I built
 
 - User domain: JPA entity, Flyway migration (seeds an admin and two regular users), Spring Data repository.
-- GET /api/users/{id} — looks up a single user by id.
-- GET /admin/users — *the intentional vulnerability*: returns every user's name, email, and role, with no authentication or authorization check at all.
+- GET /api/users/{id}: looks up a single user by id.
+- GET /admin/users: *the intentional vulnerability*: returns every user's name, email, and role, with no authentication or authorization check at all.
 - commons-text pinned to version 1.9, affected by [CVE-2022-42889 ("Text4Shell")](https://nvd.nist.gov/vuln/detail/CVE-2022-42889) — used for real (a StringSubstitutor-based greeting in getUser), not just declared and left idle.
 
 ## Key decisions & tradeoffs
@@ -32,6 +32,16 @@ This repo builds a small API with both problems on purpose, then fixes them one 
 - *Chose Apache Commons Text over Log4j-core for the vulnerable dependency.* Log4j-core pinned to an old CVE-affected version was the original plan, but it conflicted with Spring Boot's own logging bridge (log4j-to-slf4j) already on the classpath, crashing the app before startup. Commons Text is a standalone utility library with no logging-framework entanglement, so it demonstrates the same "old dependency, real CVE" scenario without fighting the framework.
 - *Used a real domain object (users) instead of a toy endpoint* so the "over-exposure" finding (/admin/users leaking emails/roles) reads as a realistic data-exposure risk, not a contrived example.
 - *Made the vulnerable dependency load-bearing, not dead code.* commons-text's StringSubstitutor is actually called, so a vulnerability scanner and a reviewer both see genuine usage, not an unused jar that would never really ship.
+- *Used the Resource Owner Password Credentials grant for Keycloak, not the Authorization Code flow.* This grant is deprecated/discouraged under OAuth 2.1 and wouldn't be the right call in a real production app. It's used here deliberately because this API has no frontend to redirect a browser through, and it lets the whole auth flow be tested with plain curl; not a sign of missing that context.
+
+
+## Architecture: how Keycloak, Docker, and the app fit together
+
+Docker's role here is narrow: it just runs Keycloak as an isolated local service (see [docs/git-tags-explained.md](docs/git-tags-explained.md) for git tags, and the docker-compose.yml itself for the container config): the Spring Boot app and PostgreSQL still run directly on your machine, not in containers, in this repo. Keycloak issues and vouches for identity; the app never touches passwords itself.
+
+Diagram: [docs/architecture-diagram.mmd](docs/architecture-diagram.mmd): open it in a Mermaid-aware viewer (e.g. paste into [mermaid.live](https://mermaid.live), or use a Markdown/Mermaid-supporting editor) since GitHub doesn't preview a linked .mmd file inline.
+
+Key point: step 5 (signature verification) happens *locally* inside the Spring Boot app using Keycloak's public key; the app does not call Keycloak again on every request to ask "is this token still valid?". That's what makes this pattern scale: one network round-trip to log in, then fast local verification on every subsequent request.
 
 ## How to run it
 
@@ -39,7 +49,7 @@ Requires a local PostgreSQL instance.
 
 ````bash
 # clone
-git clone <repo-url>
+git clone https://github.com/SanaShahSyeda
 cd secure-api-hardening-showcase
 
 # configure your local Postgres connection in
@@ -53,9 +63,10 @@ mvnw.cmd spring-boot:run       # Windows cmd/PowerShell
 Try it:
 ````bash
 curl http://localhost:8080/api/users/1
-curl http://localhost:8080/admin/users   # no auth required — this is the vulnerability
+curl http://localhost:8080/admin/users   # now requires an ADMIN-role Keycloak token — see below
 ````
 
+/admin/users is now protected via Keycloak (OAuth2 Resource Server) rather than open, per the Roadmap. To actually get a token and exercise the full auth flow (admin access, no-token rejection, wrong-role rejection), see [docs/manual-testing.md](docs/manual-testing.md).
 ## Tests
 
 Test coverage for the hardening fixes (red-before/green-after for auth, rate limiting, and headers) will be added alongside each fix as the roadmap progresses.
