@@ -37,7 +37,7 @@ This repo builds a small API with both problems on purpose, then fixes them one 
 
 Requires a local PostgreSQL instance.
 
-bash
+````bash
 # clone
 git clone <repo-url>
 cd secure-api-hardening-showcase
@@ -46,22 +46,23 @@ cd secure-api-hardening-showcase
 # src/main/resources/application.properties
 
 # run
-./mvnw spring-boot:run
-
+./mvnw spring-boot:run        # macOS/Linux/Git Bash
+mvnw.cmd spring-boot:run       # Windows cmd/PowerShell
+````
 
 Try it:
-bash
+````bash
 curl http://localhost:8080/api/users/1
 curl http://localhost:8080/admin/users   # no auth required — this is the vulnerability
-
+````
 
 ## Tests
 
 Test coverage for the hardening fixes (red-before/green-after for auth, rate limiting, and headers) will be added alongside each fix as the roadmap progresses.
 
-bash
+````bash
 ./mvnw test
-
+````
 
 ## Tech stack
 
@@ -73,6 +74,12 @@ bash
 ## Roadmap
 
 Confirmed by [OWASP Dependency-Check scan](docs/scan-before.html) against the v0-vulnerable baseline. Note: the scan only catches known-CVE dependency issues (the commons-text row); the access-control, rate-limiting, and header findings come from manual review, since no dependency scanner can detect a missing feature.
+
+To reproduce the scan yourself:
+bash
+./mvnw org.owasp:dependency-check-maven:check 
+
+First run downloads the NVD CVE feed and can take several minutes.
 
 | Finding | CVSS | Risk | Fix | Status |
 |---|---|---|---|---|
