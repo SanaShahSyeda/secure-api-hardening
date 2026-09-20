@@ -1,0 +1,51 @@
+{
+  "realm": "secure-api-hardening",
+  "enabled": true,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Full access, including the admin user listing" },
+      { "name": "USER", "description": "Regular authenticated access" }
+    ]
+  },
+  "users": [
+    {
+      "username": "alice-admin",
+      "enabled": true,
+      "email": "alice@example.com",
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "Admin",
+      "requiredActions": [],
+      "credentials": [
+        { "type": "password", "value": "adminpass123", "temporary": false }
+      ],
+      "realmRoles": ["ADMIN", "USER"]
+    },
+    {
+      "username": "bob-user",
+      "enabled": true,
+      "email": "bob@example.com",
+      "emailVerified": true,
+      "firstName": "Bob",
+      "lastName": "User",
+      "requiredActions": [],
+      "credentials": [
+        { "type": "password", "value": "userpass123", "temporary": false }
+      ],
+      "realmRoles": ["USER"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "secure-api-hardening-client",
+      "publicClient": true,
+      "enabled": true,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": []
+    }
+  ]
+}

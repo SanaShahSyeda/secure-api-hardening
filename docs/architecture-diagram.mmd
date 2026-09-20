@@ -1,0 +1,19 @@
+%% Source diagram referenced from README.md's "Architecture" section.
+%% README only links to this file (see the note there on why it isn't rendered inline).
+sequenceDiagram
+    participant C as Client (curl)
+    participant K as Keycloak<br/>(Docker container, :8081)
+    participant A as Spring Boot API<br/>(host machine, :8080)
+    participant D as PostgreSQL<br/>(host machine)
+
+    C->>K: POST /token (username, password)
+    K-->>C: JWT access_token
+    C->>A: GET /admin/users<br/>Authorization: Bearer JWT
+    A->>K: Fetch public signing key (JWK, cached after first call)
+    Note over A: Payload is now trusted only if step below passes
+    A->>A: 1. Verify signature against Keycloak's public key
+    A->>A: 2. Check exp claim against current time
+    A->>A: 3. Extract realm_access.roles into Spring authorities
+    A->>D: SELECT * FROM users
+    D-->>A: user rows
+    A-->>C: 200 OK (role=ADMIN) or 403 Forbidden
