@@ -121,6 +121,20 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>10.0.4</version>
+				<configuration>
+					<format>HTML</format>
+					<outputDirectory>${project.basedir}/docs</outputDirectory>
+					<!-- Disabled: this machine has stale/invalid OSS Index credentials
+					     configured somewhere (settings.xml or env vars), causing a 401
+					     that fails the whole build. NVD-based scanning already works
+					     without it. -->
+					<ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

@@ -39,8 +39,7 @@ Requires a local PostgreSQL instance.
 
 bash
 # clone
-git clone https://github.com/SanaShahSyeda/secure-api-hardening
-
+git clone <repo-url>
 cd secure-api-hardening-showcase
 
 # configure your local Postgres connection in
@@ -73,9 +72,15 @@ bash
 
 ## Roadmap
 
-| Finding | Risk | Fix | Status |
-|---|---|---|---|
-| Unauthenticated /admin/users | High: full user data exposure | OAuth2 resource server + role-based access control | Planned |
-| commons-text 1.9 (CVE-2022-42889) | High: script injection via StringSubstitutor | Upgrade to patched version | Planned |
-| No rate limiting | Medium: brute force / DoS | Bucket4j token-bucket filter | Planned |
-| Missing security headers | Medium: clickjacking / MIME sniffing | CSP, HSTS, X-Frame-Options via Spring Security headers DSL | Planned |
+Confirmed by [OWASP Dependency-Check scan](docs/scan-before.html) against the v0-vulnerable baseline. Note: the scan only catches known-CVE dependency issues (the commons-text row); the access-control, rate-limiting, and header findings come from manual review, since no dependency scanner can detect a missing feature.
+
+| Finding | CVSS | Risk | Fix | Status |
+|---|---|---|---|---|
+| Unauthenticated /admin/users | — | High — full user data exposure | OAuth2 resource server + role-based access control | Planned |
+| commons-text 1.9 ([CVE-2022-42889](https://nvd.nist.gov/vuln/detail/CVE-2022-42889)) | 9.8 (Critical) | Script injection via StringSubstitutor | Upgrade to patched version | Planned |
+| No rate limiting | — | Medium — brute force / DoS | Bucket4j token-bucket filter | Planned |
+| Missing security headers | — | Medium — clickjacking / MIME sniffing | CSP, HSTS, X-Frame-Options via Spring Security headers DSL | Planned |
+
+### Pre-existing framework CVEs (out of scope)
+
+The same scan also flagged CVEs in tomcat-embed-core, hibernate-validator, and angus-activation: these are bundled transitively by Spring Boot 4.1.1's own starters (spring-boot-starter-webmvc, spring-boot-starter-validation), not dependencies pinned deliberately for this exercise. They're a useful real-world illustration that even a current, correctly-configured framework version can carry newly-disclosed vulnerabilities in its bundled libraries; which is why continuous scanning matters, not just a one-time check. Fixing these means bumping the Spring Boot parent version rather than a targeted dependency change, so they're tracked here but treated as out of scope for this repo's specific hardening exercise.
