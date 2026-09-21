@@ -49,7 +49,7 @@ Requires a local PostgreSQL instance.
 
 ````bash
 # clone
-git clone https://github.com/SanaShahSyeda
+git clone https://github.com/SanaShahSyeda/secure-api-hardening
 cd secure-api-hardening-showcase
 
 # configure your local Postgres connection in
