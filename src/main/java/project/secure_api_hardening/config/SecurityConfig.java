@@ -27,7 +27,18 @@ public class SecurityConfig {
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 // Runs before Keycloak/JWT auth checks, so abusive traffic is
                 // rejected as cheaply as possible, before any auth work happens.
-                .addFilterBefore(new RateLimitFilter(), BearerTokenAuthenticationFilter.class);
+                .addFilterBefore(new RateLimitFilter(), BearerTokenAuthenticationFilter.class)
+                // X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, and
+                // cache-control headers are already added by Spring Security's
+                // defaults. CSP and HSTS are opt-in, so they're configured here.
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
+                        // Only sent on HTTPS requests (browsers ignore it over plain
+                        // HTTP anyway) — this demo runs over HTTP locally, so it won't
+                        // appear until the app is actually deployed behind TLS.
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)));
         return http.build();
     }
 }
