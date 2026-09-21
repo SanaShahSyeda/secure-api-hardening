@@ -69,6 +69,38 @@ TOKEN="paste-the-access_token-value-here"
 curl http://localhost:8080/admin/users -H "Authorization: Bearer $TOKEN"
 ````
 
+## Testing rate limiting
+
+*7. Fire 11 requests in a tight loop with a valid admin token, printing just the status code for each:*
+````powershell
+for ($i = 1; $i -le 11; $i++) {
+$status = curl.exe -s -o NUL -w "%{http_code}" http://localhost:8080/admin/users -H "Authorization: Bearer $TOKEN"
+Write-Host "Request $i -> $status"
+}
+````
+Expect requests 1–10 to return 200, and request 11 to return 429 (the bucket, 10 requests/minute per client IP, is exhausted).
+
+*8. Verify the 429 response includes the `Retry-After` header and an error message:*
+````powershell
+curl.exe -i http://localhost:8080/admin/users -H "Authorization: Bearer $TOKEN"
+````
+Expect HTTP 429, with a `Retry-After` header and the body: "Rate limit exceeded. Try again later."
+
+*9. Expect 200 OK again (once refilled), with an X-Rate-Limit-Remaining header:*
+````powershell
+curl.exe -i http://localhost:8080/admin/users -H "Authorization: Bearer $TOKEN"
+````
+
+*Note on default security headers:* you'll also notice X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, and Cache-Control/Pragma/Expires in every response; Spring Security adds these automatically once its filter chain is active, with no explicit configuration needed. Only Content-Security-Policy and Strict-Transport-Security (HSTS) are genuinely missing and require explicit setup; see the Roadmap in the main README.
+
+## Git Bash / macOS / Linux equivalent
+
+Same commands work with curl instead of curl.exe, and ./mvnw instead of mvnw.cmd. Variable assignment differs:
+````bash
+TOKEN="paste-the-access_token-value-here"
+curl http://localhost:8080/admin/users -H "Authorization: Bearer $TOKEN"
+````
+
 ## Troubleshooting
 
 If the token request fails with error="resolve_required_actions" / reason="Account is not fully set up", the imported user is missing required profile fields (firstName/lastName) or hasn't been marked emailVerified: true — check keycloak/realm-export.json, then docker compose down && docker compose up to force a fresh re-import.

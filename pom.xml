@@ -71,6 +71,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk11-core</artifactId>
+			<version>8.14.0</version>
+		</dependency>
+
 		<!-- v0-vulnerable baseline: pinned to a version with a known CVE (CVE-2022-42889,
 		     "Text4Shell") on purpose, to be scanned and remediated in a later step. -->
 		<dependency>
