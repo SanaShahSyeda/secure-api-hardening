@@ -95,7 +95,7 @@ First run downloads the NVD CVE feed and can take several minutes.
 | Finding | CVSS | Risk | Fix | Status |
 |---|---|---|---|---|
 | Unauthenticated /admin/users | — | High — full user data exposure | OAuth2 resource server + role-based access control | Implemented |
-| commons-text 1.9 ([CVE-2022-42889](https://nvd.nist.gov/vuln/detail/CVE-2022-42889)) | 9.8 (Critical) | Script injection via StringSubstitutor | Upgrade to patched version | Planned |
+| commons-text 1.9 ([CVE-2022-42889](https://nvd.nist.gov/vuln/detail/CVE-2022-42889)) | 9.8 (Critical) | Script injection via StringSubstitutor | Upgraded to 1.10.0 | Fixed |
 | No rate limiting | — | Medium — brute force / DoS | Bucket4j token-bucket filter | Implemented |
 | Missing CSP / HSTS headers | — | Medium — XSS / protocol downgrade | Content-Security-Policy + Strict-Transport-Security via Spring Security headers DSL. Note: X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection were already present; Spring Security adds these by default without configuration. | Fixed |
 ### Pre-existing framework CVEs (out of scope)
