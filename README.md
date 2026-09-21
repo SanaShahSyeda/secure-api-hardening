@@ -2,7 +2,7 @@
 
 A Spring Boot API that starts out deliberately insecure, then gets hardened step by step; with each fix documented like a real security audit. Built to demonstrate the same kind of dependency remediation, access-control, and hardening work done professionally on a large enterprise platform, applied here to a small, self-contained project anyone can clone and run.
 
-*Status:* Step 1 of the hardening plan is complete; the vulnerable baseline. Authentication, rate limiting, security headers, and the dependency upgrade are upcoming steps (see [Roadmap](#roadmap) below).
+*Status:* OAuth2 authentication, rate limiting, and security headers are implemented. The dependency upgrade for commons-text is the remaining step (see [Roadmap](#roadmap) below).
 
 ## Problem
 
@@ -94,9 +94,9 @@ First run downloads the NVD CVE feed and can take several minutes.
 
 | Finding | CVSS | Risk | Fix | Status |
 |---|---|---|---|---|
-| Unauthenticated /admin/users | — | High — full user data exposure | OAuth2 resource server + role-based access control | Planned |
+| Unauthenticated /admin/users | — | High — full user data exposure | OAuth2 resource server + role-based access control | Implemented |
 | commons-text 1.9 ([CVE-2022-42889](https://nvd.nist.gov/vuln/detail/CVE-2022-42889)) | 9.8 (Critical) | Script injection via StringSubstitutor | Upgrade to patched version | Planned |
-| No rate limiting | — | Medium — brute force / DoS | Bucket4j token-bucket filter | Planned |
+| No rate limiting | — | Medium — brute force / DoS | Bucket4j token-bucket filter | Implemented |
 | Missing security headers | — | Medium — clickjacking / MIME sniffing | CSP, HSTS, X-Frame-Options via Spring Security headers DSL | Planned |
 
 ### Pre-existing framework CVEs (out of scope)
